@@ -15,7 +15,12 @@ Positive test je **data-driven**: pre každý produkt v [`test_data/products.jso
 
 ## Spustenie testov
 
-**Predpoklady:** [Node.js](https://nodejs.org) (LTS)
+**Predpoklady:** [Git](https://git-scm.com) a [Node.js](https://nodejs.org) 20 alebo novší (odporúčaná LTS verzia)
+
+```bash
+git clone https://github.com/Caryll-Chamber/eshop-test.git
+cd eshop-test
+```
 
 ```bash
 npm ci                              # inštalácia závislostí
