@@ -104,7 +104,7 @@ playwright.config.ts
 ## Výzvy (challenges)
 
 - **Race condition po vyhľadaní.** Vyhľadávanie presmeruje stránku cez JavaScript. Tlačidlo „Add to cart“ bolo viditeľné skôr, než malo pripojený JS handler, takže klik nič nespravil. Riešenie: počkať na úplné načítanie novej stránky (`waitForURL`).
-- **Race condition pri pridaní do košíka.** Pri prechode do košíka hneď po kliknutí test niekedy prišiel skôr, než server uložil produkt (falošne zelený test), alebo prehliadač požiadavku zrušil (timeout). Riešenie: `waitForResponse` nastavený **pred** klikom a čakanie na odpoveď servera pred ďalším krokom. Overené opakovaným spúšťaním (`--repeat-each`).
+- **Race condition pri pridaní do košíka.** Pri prechode do košíka hneď po kliknutí test niekedy prišiel skôr, než server uložil produkt, alebo prehliadač požiadavku pri odchode zo stránky zrušil (timeout). Prvá verzia negatívneho testu očakávala prázdny košík, a tak bola v takých prípadoch **falošne zelená**: bug existoval, ale test ho nevidel (pri 5 spusteniach 2× zelený, 3× timeout). V teste, ktorý očakáva produkt v košíku, by rovnaký problém spôsoboval náhodné zlyhania. Riešenie: `waitForResponse` nastavený **pred** klikom a čakanie na odpoveď servera pred ďalším krokom. Overené opakovaným spúšťaním (`--repeat-each`).
 - **Preťažený demo server (HTTP 503).** Server pri záťaži sporadicky vracia 503, čo sa najprv prejavovalo ako nezrozumiteľný 30-sekundový timeout. Riešenie: `BasePage.open()` overuje HTTP status a hneď hlási `ERR: server returned an error page for <url>`. V CI zmierňujú výpadky `retries: 2` (v reporte označené ako *flaky*) a `workers: 1`.
 
 ## Nájdený bug: záporné množstvo
