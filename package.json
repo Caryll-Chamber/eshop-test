@@ -1,16 +1,14 @@
 {
-  "name": "kooperativa",
+  "name": "eshop-test",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Playwright + TypeScript E2E tests for the automationexercise.com demo e-shop",
+  "private": true,
   "scripts": {
     "test": "playwright test",
     "test:ui": "playwright test --ui",
     "report": "playwright show-report"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Caryll-Chamber",
   "type": "commonjs",
   "devDependencies": {
     "@playwright/test": "^1.64.1",
