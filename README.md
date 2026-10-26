@@ -93,7 +93,7 @@ playwright.config.ts
 ## Rozhodnutia
 
 - **Demo e-shop namiesto reálneho.** Pôvodne bol zvažovaný alza.sk. Overenie ukázalo, že Cloudflare blokuje headless prehliadač (HTTP 403, „potvrďte, že ste z mäsa a kostí“). V CI pipeline (headless, IP dátového centra) by testy nemohli bežať spoľahlivo a obchádzanie ochrany proti botom na cudzej produkcii nie je cieľom zadania ani eticky správne.
-- **Iba Chromium.** Playwright Firefox sa mi na počítači nespustil (Windows Insider build, chýbajúca závislosť `mozglue`). Zadanie konkrétny prehliadač nevyžaduje. Pridanie ďalšieho prehliadača (napr. Firefox):
+- **Iba Chromium.** Playwright Firefox sa mi na počítači nespustil (Windows Insider build, chýbajúca závislosť `mozglue`). Zadanie konkrétny prehliadač nevyžaduje. Pridanie ďalšieho prehliadača by vyžadovalo (napr. Firefox):
   1. odkomentovať projekt `firefox` v `playwright.config.ts`,
   2. lokálne stiahnuť prehliadač: `npx playwright install firefox`,
   3. v CI rozšíriť krok inštalácie na `npx playwright install --with-deps chromium firefox`.
