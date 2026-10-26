@@ -1,22 +1,21 @@
 import { Locator, Page } from '@playwright/test';
 import { BasePage } from './BasePage';
+import { routes } from './routes';
 
 // Shopping cart: /view_cart
 export class CartPage extends BasePage
 {
     readonly rows: Locator;
-    readonly emptyCartMessage: Locator;
 
     constructor(page: Page)
     {
         super(page);
         this.rows = page.locator('#cart_info_table tbody tr');
-        this.emptyCartMessage = page.locator('#empty_cart');
     }
 
     async goto()
     {
-        await this.open('/view_cart');
+        await this.open(routes.cart);
     }
 
     productRow(name: string): Locator

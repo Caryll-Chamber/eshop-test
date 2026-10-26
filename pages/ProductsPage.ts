@@ -1,5 +1,6 @@
 import { expect, Locator, Page } from '@playwright/test';
 import { BasePage } from './BasePage';
+import { routes } from './routes';
 
 // Page with the product list and the search box: /products
 export class ProductsPage extends BasePage
@@ -20,7 +21,7 @@ export class ProductsPage extends BasePage
 
     async goto()
     {
-        await this.open('/products');
+        await this.open(routes.products);
     }
 
     async search(term: string)
@@ -43,6 +44,6 @@ export class ProductsPage extends BasePage
     {
         await this.productCard(name).getByRole('link', { name: 'View Product' }).click();
         // Wait for the full page load, otherwise "Add to cart" may not have its JS handler yet.
-        await this.page.waitForURL(/product_details/);
+        await this.page.waitForURL((url) => url.pathname.startsWith(routes.productDetail));
     }
 }

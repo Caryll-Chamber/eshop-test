@@ -1,5 +1,6 @@
 import { Locator, Page, Response } from '@playwright/test';
 import { BasePage } from './BasePage';
+import { routes } from './routes';
 
 // Detail of one product: /product_details/<id>
 export class ProductDetailPage extends BasePage
@@ -22,7 +23,7 @@ export class ProductDetailPage extends BasePage
 
     async goto(productId: number)
     {
-        await this.open(`/product_details/${productId}`);
+        await this.open(`${routes.productDetail}${productId}`);
     }
 
     // Returns the server response, so a test can check whether the server accepted the request.
@@ -39,6 +40,6 @@ export class ProductDetailPage extends BasePage
     async openCartFromDialog()
     {
         await this.viewCartLink.click();
-        await this.page.waitForURL(/view_cart/);
+        await this.page.waitForURL((url) => url.pathname === routes.cart);
     }
 }
