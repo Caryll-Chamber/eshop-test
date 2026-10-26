@@ -98,7 +98,7 @@ playwright.config.ts
 ## Rozhodnutia
 
 - **Demo e-shop namiesto reálneho.** Pôvodne bol zvažovaný alza.sk. Overenie ukázalo, že Cloudflare blokuje headless prehliadač (HTTP 403, „potvrďte, že ste z mäsa a kostí“). V CI pipeline (headless, IP dátového centra) by testy nemohli bežať spoľahlivo a obchádzanie ochrany proti botom na cudzej produkcii nie je cieľom zadania ani eticky správne.
-- **Iba Chromium.** Playwright Firefox sa mi na počítači nespustil (Windows Insider build, chýbajúca závislosť `mozglue`). Zadanie konkrétny prehliadač nevyžaduje. Pridanie ďalšieho prehliadača by vyžadovalo (napr. Firefox):
+- **Iba Chromium.** Playwright Firefox sa mi na počítači nespustil (Windows Insider build, chýbajúca závislosť `mozglue`). Zadanie konkrétny prehliadač nevyžaduje. Pridanie ďalšieho prehliadača (napr. Firefoxu) by vyžadovalo:
   1. odkomentovať projekt `firefox` v `playwright.config.ts`,
   2. lokálne stiahnuť prehliadač: `npx playwright install firefox`,
   3. v CI rozšíriť krok inštalácie na `npx playwright install --with-deps chromium firefox`.
@@ -124,6 +124,7 @@ playwright.config.ts
 **Ako je bug v teste zachytený.** Najprv bol zvažovaný `test.fail()` (test, ktorý *má* zlyhať). Ten však považuje za očakávané **akékoľvek** zlyhanie, takže by zamaskoval aj úplne iný problém (napr. nedostupný e-shop). Preto negatívny test:
 
 - overuje **presný prejav bugu** (v košíku je `-1` a `Rs. -500`) a je zelený iba v tomto stave,
+- je označený anotáciou `bug`, ktorá sa zobrazí v HTML reporte,
 - je rozdelený na pomenované kroky (`test.step`) a každý `expect` má **vlastnú chybovú správu**:
 
 | Červený krok a správa | Význam |
@@ -135,8 +136,6 @@ playwright.config.ts
 | `3. KNOWN BUG ...` – `BUG FIXED? ...` | bug bol opravený, test treba prepísať na správne správanie |
 
 Správy začínajúce `ERR:` teda vždy znamenajú nový problém, iba `BUG FIXED?` znamená zmenu v správaní, ktoré test dokumentuje.
-
-- je označený anotáciou `bug`, ktorá sa zobrazí v HTML reporte.
 
 ## Nápady na ďalšie testy
 

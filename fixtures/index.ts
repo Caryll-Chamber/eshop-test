@@ -22,7 +22,8 @@ export const test = base.extend<PageObjects>(
         await page.route('**/*', (route) =>
             new URL(route.request().url()).hostname === shopHost ? route.continue() : route.abort());
 
-        // Cookie dialog appears only in some regions (e.g. EU), so it is clicked only if it shows up.
+        // Safety net: the cookie dialog appears only in some regions (e.g. EU) and is normally stopped by the
+        // blocking above (it is loaded from Google domains). If it ever shows up, it is clicked away.
         await page.addLocatorHandler
         (
             page.getByRole('button', { name: 'Consent', exact: true }),

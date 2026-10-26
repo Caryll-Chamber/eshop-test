@@ -30,7 +30,7 @@ export class ProductDetailPage extends BasePage
     async addToCart(quantity: number = 1): Promise<Response>
     {
         await this.quantityInput.fill(String(quantity));
-        // Trap is set BEFORE the click, otherwise a fast response could be missed (race condition).
+        // The response listener is registered BEFORE the click, otherwise a fast response could be missed (race condition).
         const serverResponse = this.page.waitForResponse(/add_to_cart/);
         await this.addToCartButton.click();
         return await serverResponse;
