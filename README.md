@@ -65,27 +65,37 @@ playwright.config.ts
 
 ## Prístup (approach)
 
-1. **Oboznámenie sa s problematikou a pseudokód.** Prvým krokom bolo pochopiť zadanie a navrhnúť kostru riešenia: zoznam krokov testu, čo najpodrobnejší, aby sa pri realizácii dali včas identifikovať potenciálne problémy (najprv sa treba vedieť pripojiť na e-shop, potom vyriešiť cookies, až potom vyhľadávať tovar).
-2. **Jednoduchý funkčný test** („otvor stránku, vyhľadaj, pridaj do košíka, over košík“) priamo v spec súbore, aby bolo jasné, ako sa stránka správa. V tejto fáze bolo veľa hodnôt zapísaných natvrdo v kóde (hard-coded).
-3. **Priebežné overovanie a poznámky.** Pri každom splnenom kroku som si kládol otázky (Je toto škálovateľné? Čo ak sa zmení UI? Potrebujem overovať cenu? Bude to fungovať aj v inom prehliadači alebo regióne?) a zapisoval si poznámky na vylepšenie. Pri testoch, ktoré majú rásť, nejde o rýchlosť výpočtu, ale o čitateľnosť a čo najmenej duplicitného kódu.
-4. **Testovacie dáta do JSON.** Aby test nebol naviazaný na konkrétny produkt, dáta (produkty) sa načítavajú zo súboru. Pridanie ďalšieho produktu tak nevyžaduje písať ďalší kód.
-5. **Page Object Model + fixtures.** Pri prvej verzii bolo vidieť, že selektory a pomocný kód sa opakujú v každom teste a pri zmene UI by sa museli opravovať na veľa miestach. Preto:
-   - každá stránka má vlastnú triedu, kde sú **všetky locatory a akcie**, čo znamená, že zmena v UI bude len oprava na jednom mieste,
-   - **overenia (`expect`) ostávajú v testoch**, Page Object hovorí *kde* veci sú a *ako* sa robia akcie, test hovorí *čo* sa overuje,
-   - spoločná príprava (cookies, blokovanie reklám) je **raz vo fixture** a nový test ju dostane automaticky.
-6. **BasePage.** Kontrola HTTP statusu pri otváraní stránok bola najprv skopírovaná v troch triedach a texty chybových hlášok sa medzi nimi začali líšiť. Preto bola presunutá do spoločnej rodičovskej triedy.
+1. **Plán bod po bode.** Najprv som si celý test rozpísal na papier ako postupnosť krokov, tak, ako by ich robil človek: pripojiť sa na e-shop → odkliknúť cookies → nájsť vyhľadávacie políčko → zadať produkt → overiť, že sa našiel → vložiť do košíka → otvoriť košík → overiť obsah. Poradie krokov pomohlo včas odhaliť, čo od čoho závisí.
+2. **Otázka „čo keby?“ pri každom kroku.** Ku každému bodu (a neskôr ku každému riadku kódu) som si písal otázky, napríklad:
+   - *Čo ak je stránka v inom jazyku alebo sa cookie dialóg vôbec nezobrazí?*
+   - *Čo ak sa zmení tlačidlo vyhľadávania alebo jeho `id`?*
+   - *Čo ak sa nájde viac produktov, ktorý vezmem?*
+   - *Je hľadaný produkt zapísaný natvrdo? Ako to spraviť všeobecnejšie?*
+   - *Čo ak dvaja ľudia kúpia posledný kus naraz?*
+
+   Odpovede na tieto otázky neskôr určili, ako sa kód upratoval. Niektoré skončili ako [nápady na ďalšie testy](#nápady-na-ďalšie-testy).
+3. **Jednoduchý test, ktorý spoľahlivo prejde.** Prvá verzia bola zámerne jednoduchá: jeden test v jednom súbore, všetky hodnoty zapísané natvrdo (hard-coded). Cieľom bolo, aby celý postup od vyhľadania po košík fungoval bez problémov a aby bolo jasné, ako sa stránka správa. Stabilitu som overoval opakovaným spúšťaním (`--repeat-each`).
+4. **Súbor s produktmi (JSON).** Natvrdo zapísaný produkt a cenu som presunul do [`test_data/products.json`](test_data/products.json) a test obalil cyklom. Z jedného testu sa tak stal test pre ľubovoľný počet produktov a pridanie ďalšieho produktu nevyžaduje písať kód.
+5. **Zovšeobecnenie: menej hard-coded, menej duplicity.** Keď test fungoval, prepracoval som ho podľa otázok z bodu 2:
+   - **Page Object Model.** Každá stránka má vlastnú triedu so **všetkými locatormi a akciami**. Zmena v UI (napr. iné `id` tlačidla) znamená opravu na jednom mieste, nie v každom teste.
+   - **Overenia (`expect`) ostávajú v testoch.** Page Object hovorí *kde* veci sú a *ako* sa robia akcie, test hovorí *čo* sa overuje.
+   - **Fixtures.** Spoločná príprava (cookies, blokovanie reklám) je **raz** na jednom mieste a každý nový test ju dostane automaticky.
+   - **Výber produktu podľa presného názvu** namiesto „prvý nájdený“.
+   - **BasePage.** Kontrola HTTP statusu pri otváraní stránok bola najprv skopírovaná v troch triedach a texty chybových hlášok sa medzi nimi začali líšiť. Presunul som ju preto do spoločnej rodičovskej triedy.
+
+   Pri testoch, ktoré majú rásť, nejde o rýchlosť výpočtu, ale o čitateľnosť a čo najmenej duplicitného kódu.
 
 **Locatory:** prednostne `getByRole` / `getByText` (podľa toho, čo vidí používateľ). CSS selektor iba tam, kde prvok nemá text (napr. tlačidlo s lupou `#submit_search`).
 
 ## Rozhodnutia
 
 - **Demo e-shop namiesto reálneho.** Pôvodne bol zvažovaný alza.sk. Overenie ukázalo, že Cloudflare blokuje headless prehliadač (HTTP 403, „potvrďte, že ste z mäsa a kostí“). V CI pipeline (headless, IP dátového centra) by testy nemohli bežať spoľahlivo a obchádzanie ochrany proti botom na cudzej produkcii nie je cieľom zadania ani eticky správne.
-- **Iba Chromium.** Playwright Firefox sa na vývojovom počítači (Windows Insider build) nespustil (chýbajúca závislosť `mozglue`). Zadanie konkrétny prehliadač nevyžaduje. Pridanie ďalšieho prehliadača (napr. Firefox):
+- **Iba Chromium.** Playwright Firefox sa mi na počítači nespustil (Windows Insider build, chýbajúca závislosť `mozglue`). Zadanie konkrétny prehliadač nevyžaduje. Pridanie ďalšieho prehliadača (napr. Firefox):
   1. odkomentovať projekt `firefox` v `playwright.config.ts`,
   2. lokálne stiahnuť prehliadač: `npx playwright install firefox`,
   3. v CI rozšíriť krok inštalácie na `npx playwright install --with-deps chromium firefox`.
 - **Výber produktu podľa presného názvu**, nie „prvý nájdený“. Pri všeobecnejšom vyhľadávaní (napr. „Top“) by `.first()` mohol vybrať iný produkt a overenie košíka by nemalo zmysel.
-- **Kontrola nadpisu „Searched Products“.** Stránka `/products` zobrazuje všetky produkty už pred vyhľadaním. Bez tejto kontroly by test prešiel aj vtedy, keby vyhľadávanie nefungovalo.
+- **Kontrola nadpisu „Searched Products“.** Stránka `/products` zobrazuje všetky produkty už pred vyhľadaním. Keby sa vyhľadávanie pokazilo tak, že klik na lupu nič nespraví, ostal by zobrazený zoznam všetkých produktov, test by v ňom hľadaný produkt našiel a prešiel by. Nadpis „Searched Products“ sa zobrazí iba po skutočnom vyhľadaní, takže v takom prípade test správne zlyhá.
 - **Cena v JSON ako číslo** (`500`), formát meny (`Rs. `) je v teste. S číslom sa dá počítať (napr. viac kusov).
 - **Testovacie dáta nie sú načítané zo stránky.** Očakávané hodnoty musia byť nezávislé od testovaného systému, inak by test porovnával stránku samu so sebou.
 - **Blokovanie cudzích domén.** Stránka načítava ~20 reklamných a sledovacích domén. Fixture povoľuje iba requesty na doménu e-shopu: test je rýchlejší (~13 s → ~5 s) a reklamy neprekrývajú tlačidlá.
@@ -123,4 +133,3 @@ playwright.config.ts
 - **Nákup bez účtu** a celý checkout.
 - **Validácia množstva:** hodnoty `0` a veľmi veľké čísla.
 - **Ďalšie prehliadače** a mobilné viewporty.
-- **Kontrola typov (`tsc --noEmit`) a linter** ako ďalší krok v CI.
