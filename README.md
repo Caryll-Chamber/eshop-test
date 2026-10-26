@@ -88,7 +88,7 @@ playwright.config.ts
 
    Pri testoch, ktoré majú rásť, nejde o rýchlosť výpočtu, ale o čitateľnosť a čo najmenej duplicitného kódu.
 
-**Locatory:** prednostne `getByRole` / `getByText` (podľa toho, čo vidí používateľ). CSS selektory tam, kde prvok nemá text (tlačidlo s lupou `#submit_search`), a pre štrukturálne časti stránky bez vhodnej role (karty produktov, bunky v tabuľke košíka). Všetky sú schované v Page Objectoch.
+**Locatory:** prednostne `getByRole` / `getByText` (podľa toho, čo vidí používateľ). CSS selektory tam, kde prvok nemá text (tlačidlo s lupou `#submit_search`) a pre štrukturálne časti stránky bez vhodnej role (karty produktov, bunky v tabuľke košíka). Všetky sú schované v Page Objectoch.
 
 ## Rozhodnutia
 
